@@ -26,8 +26,7 @@ SECRET_KEY = "django-insecure-#ycx#-av_9io#62h8kjpbbac8%t%k_sllt8xx2p=u0nnmne&ot
 DEBUG = True
 AUTH_USER_MODEL='website.AuthUser'
 
-ALLOWED_HOSTS = ['*']
-
+ALLOWED_HOSTS = ["your-service.onrender.com"]
 
 # Application definition
 
