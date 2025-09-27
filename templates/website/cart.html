@@ -1,0 +1,133 @@
+{% extends 'website/common/base.html' %}
+{% block title %}Your Cart{% endblock %}
+
+{% block main_content %}
+<style>
+/* Overall page background */
+body {
+    background-color: #f8f9fa;
+}
+
+/* Cart item card */
+.cart-item {
+    background: #fff;
+    border-radius: 1rem;
+    padding: 1rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.08);
+}
+.cart-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.12);
+}
+
+/* Price badge */
+.item-price {
+    font-weight: 700;
+    color: #522cdb; /* Bootstrap success green */
+}
+
+/* Remove button */
+.btn-remove {
+    border-radius: 1rem;
+    transition: 0.2s;
+}
+.btn-remove:hover {
+    transform: scale(1.05);
+}
+
+/* Summary card */
+.summary-card {
+    border-radius: 1rem;
+    background: #fff;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+}
+.summary-card .btn-checkout {
+    border-radius: 2rem;
+    background: linear-gradient(135deg, #7532d9, #2c40bc);
+    transition: transform 0.2s ease;
+}
+.summary-card .btn-checkout:hover {
+    transform: scale(1.03);
+}
+
+/* Empty cart */
+.empty-cart-card {
+    border-radius: 1rem;
+    padding: 3rem;
+    background: #fff;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+}
+</style>
+
+<div class="container py-5">
+    <h1 class="display-5 text-center mb-5">Your Shopping Cart 🛒</h1>
+    
+    {% if cart_products %}
+    <div class="row justify-content-center g-4">
+        <div class="col-lg-8">
+            <h2 class="h4 mb-3 fw-bold">Items in Cart ({{ cart_products|length }})</h2>
+            
+            <ul class="list-unstyled">
+                {% for product in cart_products %}
+                <li class="cart-item d-flex justify-content-between align-items-center mb-3 p-3">
+                    <div class="d-flex flex-column">
+                        <h5 class="fw-bold mb-1">{{ product.name }}</h5>
+                        <small class="text-muted">{{ product.description|truncatewords:12 }}</small>
+                        <form method="post" action="{% url 'remove_from_cart' product.id %}" class="mt-2">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger btn-sm btn-remove">
+                                <i class="bi bi-trash me-1"></i> Remove
+                            </button>
+                        </form>
+                    </div>
+                    <span class="item-price fs-5">${{ product.price|floatformat:2 }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+
+            <a href="{% url 'product_list' %}" class="btn btn-outline-secondary rounded-pill">
+                <i class="bi bi-arrow-left me-2"></i> Continue Shopping
+            </a>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="summary-card sticky-top p-4" style="top: 20px;">
+                <h2 class="h4 mb-4 fw-bold">Order Summary</h2>
+                
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Subtotal ({{ cart_products|length }} items):</span>
+                    <span class="fw-bold">${{ subtotal|floatformat:2 }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-4">
+                    <span>Shipping:</span>
+                    <span class="fw-bold text-success">{% if shipping > 0 %}${{ shipping|floatformat:2 }}{% else %}FREE{% endif %}</span>
+                </div>
+                
+                <hr class="my-3">
+                
+                <div class="d-flex justify-content-between fs-4 fw-bolder text-dark mb-4">
+                    <span>Total:</span>
+                    <span>${{ order_total|floatformat:2 }}</span>
+                </div>
+                
+                <form action="{% url 'checkout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-checkout btn-lg w-100 text-white fw-bold">
+                        <i class="bi bi-bag-check me-2"></i> Proceed to Checkout
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-cart-card text-center mx-auto mt-5">
+        <h3 class="text-muted mb-3 display-6">Your Cart is Empty 😔</h3>
+        <p class="text-secondary mb-4">Looks like you haven't added anything to your cart yet.</p>
+        <a href="{% url 'product_list' %}" class="btn btn-primary btn-lg rounded-pill px-5">
+            Start Shopping
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

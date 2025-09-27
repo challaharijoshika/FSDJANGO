@@ -1,0 +1,158 @@
+{% extends 'website/common/base.html' %}
+{% block title %}Sign Up 📝{% endblock %}
+
+{% block main_content %}
+<style>
+    /* Background with overlay (same as login) */
+    body {
+        background: url("https://www.shutterstock.com/image-vector/modern-background-template-light-blue-260nw-2475293189.jpg") no-repeat center center fixed;
+        background-size: cover;
+        position: relative;
+        min-height: 100vh;
+    }
+    body::before {
+        content: "";
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.55); /* Dark overlay */
+        z-index: 0;
+    }
+
+    /* Center form */
+    .centered-form {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 90vh;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Card styling */
+    .login-card {
+        width: 100%;
+        max-width: 450px;
+        border-radius: 1.5rem;
+        background: rgba(255, 255, 255, 0.95); /* Glassy effect */
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+        overflow: hidden;
+        transition: transform 0.2s ease-in-out;
+    }
+    .login-card:hover {
+        transform: translateY(-4px);
+    }
+
+    /* Header styling */
+    .login-header {
+        background: linear-gradient(135deg, #1951c9, #2b0f71); /* Greenish gradient for sign-up */
+        color: #fff;
+        padding: 1.5rem;
+        text-align: center;
+    }
+    .login-header h3 {
+        margin: 0;
+        font-weight: 700;
+    }
+
+    /* Floating inputs */
+    .form-floating input {
+        border-radius: 0.75rem;
+    }
+
+    /* Button */
+    .btn-signup {
+        background: linear-gradient(135deg, #16189f, #1b0c8e);
+        border: none;
+        border-radius: 0.75rem;
+        transition: 0.3s ease;
+    }
+    .btn-signup:hover {
+        background: linear-gradient(135deg, #0a0aa1, #280868);
+        transform: scale(1.02);
+    }
+
+    /* Links */
+    .login-footer a {
+        color: #25056f;
+        transition: color 0.3s;
+    }
+    .login-footer a:hover {
+        color: #0a3622;
+    }
+</style>
+
+<div class="container centered-form">
+    <div class="card login-card border-0">
+        <!-- Header -->
+        <div class="login-header">
+            <h3>Create Your Account ✍️</h3>
+            <p class="small mb-0">Join us and get started</p>
+        </div>
+
+        <div class="card-body p-5">
+            <form method="POST" action="{% url 'signup' %}" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger fade show mb-4 small" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        {% for error in form.non_field_errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Username -->
+                <div class="form-floating mb-3">
+                    {{ form.username }}
+                    <label for="{{ form.username.id_for_label }}">Username</label>
+                    {% for error in form.username.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <!-- Email -->
+                <div class="form-floating mb-3">
+                    {{ form.email }}
+                    <label for="{{ form.email.id_for_label }}">Email Address</label>
+                    {% for error in form.email.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <!-- Password -->
+                <div class="form-floating mb-3">
+                    {{ form.password1 }}
+                    <label for="{{ form.password1.id_for_label }}">Password</label>
+                    {% for error in form.password1.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="form-floating mb-4">
+                    {{ form.password2 }}
+                    <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+                    {% for error in form.password2.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <!-- Submit -->
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-signup btn-lg fw-bold text-white">
+                        <i class="bi bi-person-plus-fill me-2"></i> Sign Up
+                    </button>
+                </div>
+            </form>
+
+            <p class="text-center mt-4 text-muted small login-footer">
+                Already registered? 
+                <a href="{% url 'login' %}" class="fw-bold text-decoration-none">Log In Now</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

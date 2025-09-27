@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include 'website/common/headers.html' %}
+    <title>{% block title %}E-commerce Website{% endblock %}</title>
+
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .flex-grow-1 {
+            flex-grow: 1;
+        }
+        .sidebar {
+            width: 220px;
+            background-color: #f8f9fa;
+            padding: 1rem;
+            min-height: 80vh;
+        }
+        .sidebar .nav-link.active {
+            font-weight: bold;
+            color: #0d6efd;
+        }
+        .content-area {
+            padding: 1.5rem;
+        }
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 100%;
+                min-height: auto;
+            }
+        }
+        .badge { font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<header>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top px-3">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="{% url 'product_list' %}">🛍 Shop</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <!-- Search -->
+                <form class="d-flex me-auto" action="{% url 'search' %}" method="get">
+                    <input class="form-control me-2" type="search" placeholder="Search products"
+                           name="q" value="{{ request.GET.q }}">
+                    <button class="btn btn-outline-light" type="submit">Search</button>
+                </form>
+
+                <ul class="navbar-nav ms-auto">
+                    {% if user.is_authenticated %}
+                        <!-- Cart with badge -->
+                        <li class="nav-item me-2">
+                            <a class="nav-link position-relative" href="{% url 'cart' %}">
+                                🛒 Cart
+                                {% if cart and cart.items.count > 0 %}
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success">
+                                        {{ cart.items.count }}
+                                        <span class="visually-hidden">items in cart</span>
+                                    </span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <!-- Logout -->
+                        <li class="nav-item">
+                            <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button class="btn btn-link nav-link" type="submit">🚪 Logout</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li class="nav-item me-2"><a class="nav-link" href="{% url 'login' %}">🔑 Login</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'signup' %}">📝 Signup</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<!-- Messages -->
+<div class="container mt-3">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<!-- Main Content with optional Sidebar -->
+<main class="flex-grow-1 d-flex container-fluid mt-3">
+    {% if user.is_authenticated %}
+        <!-- Sidebar -->
+        <nav class="sidebar d-none d-lg-block">
+            <h5>Dashboard</h5>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'product_list' %}active{% endif %}"
+                       href="{% url 'product_list' %}">Products</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'cart' %}active{% endif %}"
+                       href="{% url 'cart' %}">Cart</a>
+                </li>
+            </ul>
+        </nav>
+    {% endif %}
+
+    <!-- Content Area -->
+    <div class="content-area flex-grow-1">
+        {% block main_content %}{% endblock %}
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-dark text-white text-center py-3 mt-auto">
+    <div class="container">
+        <p class="mb-0">&copy; 2025 E-commerce. All rights reserved.</p>
+    </div>
+</footer>
+
+{% include 'website/common/scripting.html' %}
+</body>
+</html>

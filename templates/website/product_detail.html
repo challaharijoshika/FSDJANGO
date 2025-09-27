@@ -1,0 +1,172 @@
+{% extends 'website/common/base.html' %}
+{% block title %}{{ product.name }} | Details{% endblock %}
+
+{% block main_content %}
+<style>
+/* Product Image */
+.product-img {
+    height: 400px;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, #eef6fa, #d6ecf3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5rem;
+    color: #0d6efd;
+    box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.1);
+}
+
+/* Tabs */
+.nav-tabs .nav-link.active {
+    background-color: #0d6efd;
+    color: #fff !important;
+    font-weight: bold;
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
+/* Review Stars */
+.star-rating {
+    font-size: 1.2rem;
+    color: #ffc107;
+}
+
+/* Review Card */
+.review-card {
+    border: 1px solid #eee;
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+    background: #fafafa;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.05);
+}
+</style>
+
+<div class="container py-5">
+    <div class="row g-5 align-items-start">
+        <!-- LEFT SIDE: Product Image + Info -->
+        <div class="col-lg-5">
+            <div class="product-img mb-4">
+                <i class="bi bi-box-seam"></i>
+            </div>
+
+            <h1 class="fw-bold mb-3 text-dark">{{ product.name }}</h1>
+
+            {% if product.stock > 0 %}
+                <p class="text-success fs-6 fw-bold mb-2">
+                    <i class="bi bi-check-circle-fill me-1"></i> In Stock ({{ product.stock }})
+                </p>
+            {% else %}
+                <p class="text-danger fs-6 fw-bold mb-2">
+                    <i class="bi bi-x-circle-fill me-1"></i> Out of Stock
+                </p>
+            {% endif %}
+
+            <h3 class="fw-bold text-primary mb-4">${{ product.price|floatformat:2 }}</h3>
+
+            <form action="{% url 'add_to_cart' product.id %}" method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="quantity" class="form-label fw-medium">Quantity</label>
+                    <input type="number" id="quantity" name="quantity" 
+                           class="form-control form-control-lg text-center"
+                           value="1" min="1" 
+                           {% if product.stock > 0 %}max="{{ product.stock }}"{% else %}disabled{% endif %}
+                           style="width: 120px;">
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg" {% if product.stock <= 0 %}disabled{% endif %}>
+                        <i class="bi bi-cart-plus me-2"></i> Add to Cart
+                    </button>
+                    <a href="{% url 'cart' %}" class="btn btn-outline-success btn-lg">
+                        <i class="bi bi-bag-check me-2"></i> View Cart
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- RIGHT SIDE: Tabs (Description + Reviews) -->
+        <div class="col-lg-7">
+            <ul class="nav nav-tabs mb-4" id="productTabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="desc-tab" data-bs-toggle="tab" href="#desc" role="tab">Description</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="reviews-tab" data-bs-toggle="tab" href="#reviews" role="tab">Reviews ({{ reviews|length }})</a>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <!-- DESCRIPTION TAB -->
+                <div class="tab-pane fade show active" id="desc" role="tabpanel">
+                    <p class="lead text-secondary">{{ product.description }}</p>
+                </div>
+
+                <!-- REVIEWS TAB -->
+                <div class="tab-pane fade" id="reviews" role="tabpanel">
+                    {% if user.is_authenticated %}
+                    <div class="accordion mb-4" id="reviewAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#addReview">
+                                    ✍️ Leave a Review
+                                </button>
+                            </h2>
+                            <div id="addReview" class="accordion-collapse collapse" data-bs-parent="#reviewAccordion">
+                                <div class="accordion-body">
+                                    <form method="post" action="{% url 'add_review' product.pk %}">
+                                        {% csrf_token %}
+                                        <div class="mb-3">
+                                            <label class="form-label">{{ form.rating.label_tag }}</label>
+                                            {{ form.rating }}
+                                            {% if form.rating.errors %}
+                                                <div class="text-danger small">{{ form.rating.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">{{ form.comment.label_tag }}</label>
+                                            {{ form.comment }}
+                                            {% if form.comment.errors %}
+                                                <div class="text-danger small">{{ form.comment.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                        <button type="submit" class="btn btn-warning fw-bold">
+                                            <i class="bi bi-star-fill me-1"></i> Submit Review
+                                        </button>
+                                        {% if form.non_field_errors %}
+                                            <div class="alert alert-danger mt-2 small">{{ form.non_field_errors }}</div>
+                                        {% endif %}
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info small text-center">
+                        <i class="bi bi-info-circle me-1"></i> Please 
+                        <a href="{% url 'login' %}" class="alert-link">log in</a> to leave a review.
+                    </div>
+                    {% endif %}
+
+                    {% if reviews %}
+                        {% for review in reviews %}
+                        <div class="review-card">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="star-rating me-2">
+                                    {% for i in "12345"|slice:":review.rating"|make_list %}★{% endfor %}
+                                    {% for i in "12345"|slice:"review.rating:"|make_list %}☆{% endfor %}
+                                </div>
+                                <span class="fw-medium">Reviewer</span>
+                            </div>
+                            <p class="mb-1 text-secondary">{{ review.comment }}</p>
+                            <small class="text-muted fst-italic">Reviewed on {{ review.created_at|date:"M j, Y" }}</small>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted fst-italic">No reviews yet. Be the first to share your thoughts!</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

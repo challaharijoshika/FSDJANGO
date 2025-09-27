@@ -1,0 +1,82 @@
+{% extends 'website/common/base.html' %}
+{% block title %}Product Catalog{% endblock %}
+
+{% block main_content %}
+<style>
+/* Background */
+body {
+    background-color: #f4f6f8;
+}
+
+/* Card styling */
+.product-card {
+    position: relative;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    background: linear-gradient(145deg, #ffffff, #f1f3f6);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.product-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.15);
+}
+
+/* Price badge */
+.price-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background-color: #0d6efd;
+    color: #fff;
+    padding: 0.4rem 0.8rem;
+    border-radius: 0.75rem;
+    font-weight: bold;
+    font-size: 0.9rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.1);
+}
+
+/* Card content */
+.card-title {
+    font-size: 1.25rem;
+}
+.card-text {
+    color: #6c757d;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+/* Button styling */
+.btn-details {
+    border-radius: 2rem;
+    transition: all 0.3s ease;
+}
+.btn-details:hover {
+    transform: scale(1.05);
+    background-color: #0b5ed7;
+}
+</style>
+
+<div class="container py-5">
+    <h1 class="text-center mb-5 display-5 fw-light text-dark">Product Catalog</h1>
+    
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for product in products %}
+        <div class="col">
+            <div class="product-card h-100">
+                <div class="price-badge">${{ product.price|floatformat:2 }}</div>
+                
+                <h5 class="card-title fw-bold mb-2">{{ product.name }}</h5>
+                <p class="card-text mb-3">{{ product.description|truncatewords:15 }}</p>
+                
+                <div class="d-grid">
+                    <a href="{% url 'product_detail' product.id %}" class="btn btn-primary btn-details fw-medium">
+                        View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
