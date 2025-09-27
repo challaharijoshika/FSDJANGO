@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-#ycx#-av_9io#62h8kjpbbac8%t%k_sllt8xx2p=u0nnmne&ot
 DEBUG = True
 AUTH_USER_MODEL='website.AuthUser'
 
-ALLOWED_HOSTS = ["your-service.onrender.com"]
+ALLOWED_HOSTS = ["fsdjango.onrender.com"]
 
 # Application definition
 
@@ -46,6 +46,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
